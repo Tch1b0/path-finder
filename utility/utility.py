@@ -4,6 +4,10 @@ import math
 
 
 class Coordinates():
+    """
+    Store simple coordinates
+    """
+
     def __init__(self, x: int = 0, y: int = 0) -> None:
         self.x = x
         self.y = y
@@ -19,7 +23,6 @@ class Coordinates():
     
     def __eq__(self, other: object) -> bool:
         return self.x == other.x and self.y == other.y
-
 
     def distance(self, other: Coordinates) -> float:
         return math.sqrt((self.x - other.x)**2 + (self.y - other.y)**2)
@@ -42,7 +45,7 @@ class Player():
     def __init__(self, coords: Coordinates, game_field: GameField) -> None:
         self.coords = coords
         self.game_field = game_field
-    
+
     def __str__(self) -> str:
         return f"Player at {str(self.coords)}"
 
@@ -50,6 +53,10 @@ class Player():
         return f"<Player:{str(self.coords)}>"
 
     def set_coords(self, coords: Coordinates) -> None:
+        """
+        Set the Coordinates of the Player
+        """
+
         self.game_field.move(self.coords, coords)
 
     def move(self, dir: Coordinates) -> bool:
@@ -57,6 +64,7 @@ class Player():
         Move the Player somewhere in the field
         Returns wether the move was successful or not
         """
+
         return self.game_field.request_move(self.coords, self.coords + dir)
 
 class GameField():
@@ -68,6 +76,10 @@ class GameField():
         return str(self.field)
 
     def get_player(self) -> Player:
+        """
+        Get the Player from the field
+        """
+
         for row in self.field:
             for col in row:
                 if col not in FieldStates.ALL:
@@ -76,6 +88,10 @@ class GameField():
         return None
 
     def get_target(self) -> Coordinates:
+        """
+        Get the target from the field
+        """
+
         for y, row in enumerate(self.field):
             for x, col in enumerate(row):
                 if col == FieldStates.TARGET:
@@ -84,13 +100,27 @@ class GameField():
         return None
 
     def spawn_player(self, coords: Coordinates) -> Player:
+        """
+        Spawn a new Player on the field
+        """
+
         self.field[coords.y][coords.x] = (player := Player(coords, self))
         return player
 
     def spawn_target(self, coords: Coordinates) -> None:
+        """
+        Spawn a new target on the field
+        """
+
         self.field[coords.y][coords.x] = FieldStates.TARGET
 
     def spawn_wall(self, from_coord: Coordinates, to_coord: Coordinates):
+        """
+        Spawn a wall that stretches from one to another point
+
+        NOTE: can't go diagonal and the first point must be lower than the right
+        """
+
         if from_coord.x != to_coord.x:
             for x in range(from_coord.x, to_coord.x + 1):
                 self.field[from_coord.y][x] = FieldStates.WALL
@@ -99,6 +129,10 @@ class GameField():
                 self.field[y][from_coord.x] = FieldStates.WALL
 
     def move(self, old_coords: Coordinates, new_coords: Coordinates):
+        """
+        Move a certain item on the field somewhere else
+        """
+
         if old_coords == new_coords: return
 
         old_item = self.field[new_coords.y][new_coords.x]
@@ -112,7 +146,6 @@ class GameField():
                 self.player_won = True
         else:
             self.field[old_coords.y][old_coords.x] = FieldStates.EMPTY
-
 
     def request_move(self, old_coords: Coordinates, new_coords: Coordinates) -> bool:
         """
