@@ -4,26 +4,33 @@ from utility.utility import *
 from utility import find_path
 import sys
 
-field_colors = {
+# define constants
+FIELD_COLORS = {
     FieldStates.EMPTY: (0,0,0),
     FieldStates.WALL: (150, 150, 150),
     FieldStates.TARGET: (50, 50, 200),
     FieldStates.VISITED: (50, 0, 0)
 }
+BOX_SIZE = 50
 
+# parse the first argument or select the default one
 if len(sys.argv) < 2:
     file_path = "./levels/first.lvl"
 else:
     file_path = sys.argv[1]
 
-BOX_SIZE = 50
 
-field: GameField = LevelInterpreter(file_path).build_game_field()
-
-window_size = [len(field.field[0])*BOX_SIZE, len(field.field)*BOX_SIZE]
-window = pygame.display.set_mode(window_size)
+field = LevelInterpreter(file_path).build_game_field()
+window = pygame.display.set_mode([
+    len(field.field[0])*BOX_SIZE,  # calculate and set width
+    len(field.field)*BOX_SIZE      # calculate and set height
+])
 
 def render():
+    """
+    Render the pygame view
+    """
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             quit(pygame.quit())
@@ -34,11 +41,14 @@ def render():
                 # item has to be Player
                 pygame.draw.rect(window, (200, 30, 30), (x*BOX_SIZE, y*BOX_SIZE, BOX_SIZE, BOX_SIZE))
             else:
-                pygame.draw.rect(window, field_colors[item], (x*BOX_SIZE, y*BOX_SIZE, BOX_SIZE, BOX_SIZE))
+                pygame.draw.rect(window, FIELD_COLORS[item], (x*BOX_SIZE, y*BOX_SIZE, BOX_SIZE, BOX_SIZE))
 
     pygame.display.update()
 
 if __name__ == "__main__":
+    # solve maze
     find_path(field, render, 44)
+    
+    # keep displaying the (un)solved maze
     while True:
         render()
