@@ -1,5 +1,7 @@
 # path-finder
 
+![badge](https://img.shields.io/github/license/Tch1b0/path-finder) ![badge](https://img.shields.io/github/issues/Tch1b0/path-finder)
+
 A simple recursive path-finder made in python.
 
 # Execute
