@@ -1,0 +1,15 @@
+# init
+siz 10,8
+plr 0,0
+trg 9,7
+
+# Walls
+wal 1,1 1,7
+wal 3,0 3,4
+wal 3,4 5,4
+wal 3,6 8,6
+wal 8,6 8,7
+wal 7,1 7,6
+wal 9,2 9,4
+wal 8,6 8,7
+wal 5,0 5,2
