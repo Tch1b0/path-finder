@@ -13,3 +13,8 @@ Example:
 ```
 python __main__.py ./levels/first.lvl
 ```
+
+# Requirements
+
+-   python v3.10
+-   pygame
