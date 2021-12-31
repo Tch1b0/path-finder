@@ -4,19 +4,25 @@
 
 A simple recursive path-finder made in python.
 
-# Execute
+## Execute
 
 ```
-python __main__.py <level-path>
+$ python __main__.py <level-path>
 ```
 
 Example:
 
 ```
-python __main__.py ./levels/first.lvl
+$ python __main__.py ./levels/first.lvl
 ```
 
-# Requirements
+## Install required packages
+
+```
+$ pip install -r ./requirements.txt
+```
+
+## Requirements
 
 -   python v3.10
 -   pygame
