@@ -1,4 +1,24 @@
-from utility.utility import Coordinates, GameField
+from utility.utility import Coordinates, FieldType, GameField
+
+
+class Instruction:
+    command: str
+    args: list
+
+    def __init__(self, command: str, args: list):
+        self.command = command
+        self.args = []
+        for arg in args:
+            if Coordinates.is_coordinate(arg):
+                self.args.append(Coordinates.from_string(arg))
+            else:
+                self.args.append(arg)
+
+    @classmethod
+    def from_string(cls, string: str):
+        command, *args = string.split(" ")
+        return cls(command, args)
+
 
 class LevelInterpreter():
     """
@@ -6,35 +26,85 @@ class LevelInterpreter():
     configuration file
     """
 
+    file_content: str
+    instructions: list[Instruction]
+    is_map: bool
+
     def __init__(self, file_path) -> None:
         with open(file_path, "r") as f:
-            self.level_code: list[list[str]] = [x.split(" ", 1) for x in f.readlines() if x not in [" ", "\n", ""]]
+            self.file_content = f.read()
+
+        self.is_map = not "siz" in self.file_content
+
+        if not self.is_map:
+            self.instructions: list[Instruction] = []
+            for line in self.file_content.split("\n"):
+                if len(line) <= 2 or line.startswith("#"):
+                    continue
+                self.instructions.append(Instruction.from_string(line))
 
     def build_game_field(self) -> GameField:
+        return self.build_game_field_from_map() if self.is_map else self.build_game_field_from_instructions()
+
+    def build_game_field_from_instructions(self) -> GameField:
         """
         Build a new GameField from the loaded file
         """
 
-        game_field: GameField
-        try:
-            raw_size = list(filter(lambda x: x[0] == "siz", self.level_code))[0][1]
-            x, y = [int(x) for x in raw_size.split(",")]
-            game_field = GameField((x, y))
-        except:
-            raise Exception("LevelInterpreter: missing 'siz' command in lvl file")
+        if any(x.command == "siz" for x in self.instructions):
+            size = [x for x in self.instructions if x.command == "siz"][0].args[0]
+            game_field = GameField((size.x, size.y))
+        else:
+            raise Exception(
+                "LevelInterpreter: missing 'siz' command in lvl file")
 
-        for command in self.level_code:
-            match command[0]:
+        for instruction in self.instructions:
+            match instruction.command:
                 case "plr":
-                    coords = Coordinates(*[int(x) for x in command[1].split(",")])
+                    coords = instruction.args[0]
                     game_field.spawn_player(coords)
                 case "trg":
-                    coords = Coordinates(*[int(x) for x in command[1].split(",")])
+                    coords = instruction.args[0]
                     game_field.spawn_target(coords)
                 case "wal":
-                    coords = command[1].split(" ")
-                    from_coord = Coordinates(*[int(x) for x in coords[0].split(",")])
-                    to_coord = Coordinates(*[int(x) for x in coords[1].split(",")])
+                    from_coord = instruction.args[0]
+                    to_coord = instruction.args[1]
                     game_field.spawn_wall(from_coord, to_coord)
+
+        return game_field
+
+    def build_game_field_from_map(self) -> GameField:
+        """
+        Build a new GameField from a map
+        """
+
+        rows: list[list[FieldType]] = []
+
+        for line in self.file_content.split("\n"):
+            row: list[FieldType] = []
+
+            for char in line:
+                match char:
+                    case "P":
+                        row.append(FieldType.START)
+                    case "T":
+                        row.append(FieldType.TARGET)
+                    case "#":
+                        row.append(FieldType.WALL)
+                    case " ":
+                        row.append(FieldType.EMPTY)
+                    case _:
+                        raise Exception(
+                            f"LevelInterpreter: unknown character '{char}'")
+
+            rows.append(row)
+
+        game_field = GameField((len(rows[0]), len(rows)))
+        for y, row in enumerate(rows):
+            for x, col in enumerate(row):
+                if col == FieldType.START:
+                    game_field.spawn_player(Coordinates(x, y))
+                else:
+                    game_field.field[y][x] = col
 
         return game_field

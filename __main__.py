@@ -7,10 +7,10 @@ import sys
 
 # define constants
 FIELD_COLORS = {
-    FieldStates.EMPTY: (0, 0, 0),
-    FieldStates.WALL: (150, 150, 150),
-    FieldStates.TARGET: (50, 50, 200),
-    FieldStates.VISITED: (50, 0, 0)
+    FieldType.EMPTY: (0, 0, 0),
+    FieldType.WALL: (150, 150, 150),
+    FieldType.TARGET: (50, 50, 200),
+    FieldType.VISITED: (50, 0, 0)
 }
 BOX_SIZE = 50
 
@@ -21,10 +21,10 @@ else:
     file_path = sys.argv[1]
 
 
-field = LevelInterpreter(file_path).build_game_field()
+game = LevelInterpreter(file_path).build_game_field()
 window = pygame.display.set_mode([
-    len(field.field[0])*BOX_SIZE,  # calculate and set width
-    len(field.field)*BOX_SIZE      # calculate and set height
+    len(game.field[0])*BOX_SIZE,  # calculate and set width
+    len(game.field)*BOX_SIZE      # calculate and set height
 ])
 
 
@@ -37,9 +37,9 @@ def render():
         if event.type == pygame.QUIT:
             quit(pygame.quit())
 
-    for y, row in enumerate(field.field):
+    for y, row in enumerate(game.field):
         for x, item in enumerate(row):
-            if item not in FieldStates.ALL:
+            if item not in FieldType.ALL:
                 # item has to be Player
                 pygame.draw.rect(window, (200, 30, 30),
                                  (x*BOX_SIZE, y*BOX_SIZE, BOX_SIZE, BOX_SIZE))
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     start = time()
 
     # solve maze
-    find_path(field, render, 44)
+    find_path(game, render, 44)
 
     # get the end time
     end = time()
