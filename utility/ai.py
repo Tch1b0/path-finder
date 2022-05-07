@@ -1,13 +1,14 @@
 from typing import Callable
 from utility.utility import Coordinates, Directions, GameField, Player
 
+
 def find_path(
-    game_field: GameField, 
-    render: Callable[[],None],
-    max_depth: int,
-    depth: int = 0,
-    avoid_move: Coordinates = None,
-    player: Player = None) -> bool:
+        game_field: GameField,
+        render: Callable[[], None],
+        max_depth: int,
+        depth: int = 0,
+        avoid_move: Coordinates = None,
+        player: Player = None) -> bool:
     """
     Find a path(as the Player) through the GameField.
     """
@@ -20,7 +21,7 @@ def find_path(
 
     # go through EVERY direction
     for direction in Directions.ALL:
-        # skip if the step would lead backwards 
+        # skip if the step would lead backwards
         if avoid_move and current_pos + direction == avoid_move:
             continue
 
@@ -37,7 +38,8 @@ def find_path(
 
         # check if the max_depth isn't reached and call this function
         if depth != max_depth:
-            tmp = find_path(game_field, render, max_depth, depth + 1, current_pos, player)
+            tmp = find_path(game_field, render, max_depth,
+                            depth + 1, current_pos, player)
             if tmp:
                 render()
                 return True
