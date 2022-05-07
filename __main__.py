@@ -7,6 +7,8 @@ import sys
 
 # define constants
 FIELD_COLORS = {
+    "PLAYER": (200, 30, 30),
+    "SOLUTION": (30, 200, 30),
     FieldType.EMPTY: (0, 0, 0),
     FieldType.WALL: (150, 150, 150),
     FieldType.TARGET: (50, 50, 200),
@@ -28,7 +30,7 @@ window = pygame.display.set_mode([
 ])
 
 
-def render():
+def render(solution_path: list[Coordinates] = []):
     """
     Render the pygame view
     """
@@ -39,9 +41,14 @@ def render():
 
     for y, row in enumerate(game.field):
         for x, item in enumerate(row):
+            coords = Coordinates(x, y)
+
             if item not in FieldType.ALL:
                 # item has to be Player
-                pygame.draw.rect(window, (200, 30, 30),
+                pygame.draw.rect(window, FIELD_COLORS["PLAYER"],
+                                 (x*BOX_SIZE, y*BOX_SIZE, BOX_SIZE, BOX_SIZE))
+            elif any(x == coords for x in solution_path):
+                pygame.draw.rect(window, FIELD_COLORS["SOLUTION"],
                                  (x*BOX_SIZE, y*BOX_SIZE, BOX_SIZE, BOX_SIZE))
             else:
                 pygame.draw.rect(
@@ -55,7 +62,7 @@ if __name__ == "__main__":
     start = time()
 
     # solve maze
-    find_path(game, render, 44)
+    solution_path = find_path(game, render, 44)
 
     # get the end time
     end = time()
@@ -65,4 +72,4 @@ if __name__ == "__main__":
 
     # keep displaying the (un)solved maze
     while True:
-        render()
+        render(solution_path)
